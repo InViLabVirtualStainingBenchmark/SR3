@@ -134,7 +134,8 @@ class Metrics(nn.Module):
 
     def _calc_is(self):
         scores = list()
-        for acts in torch.split(self.is_activations, len(self.fid_activations)//10):
+        chunk_size = max(1, len(self.fid_activations) // 10)
+        for acts in torch.split(self.is_activations, chunk_size):
             posteriors_yx = self.softmax(acts) # lisf of p(y|x); as pytorch inception_v3 does not have softmax, apply softmax to output; shape = (B, 1000)
             probability_y = torch.mean(posteriors_yx, dim=0) # marginal distribtion of y = p(y) = mean{ p(y|x) } on x; shape = (1000)
             entropy = torch.sum(posteriors_yx * torch.log(posteriors_yx + self.eps), dim=1) # sum{ p(y|x) * log( p(y|x) ) } on y; shape = (B)

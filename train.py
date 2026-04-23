@@ -16,7 +16,7 @@ from torchvision import transforms
 
 from utils import Utils
 from metrics import Metrics
-from data import DF2KTrainDataset, DIV2KValDataset, Flickr2KTestDataset
+from data import TrainDataset, EvalDataset
 from diffusion import GaussianDiffusion
 
 import torch.distributed as dist
@@ -44,7 +44,7 @@ class DiffTrainer(Utils):
         )
 
         settings['ema_net'] = copy.deepcopy(net)
-        settings['upsample'] = nn.Upsample(scale_factor=4.0, mode='bicubic').to(settings['device'])
+        settings['upsample'] = nn.Identity().to(settings['device'])
         
         for k, v in settings.items():
             setattr(self, k, v)
@@ -59,13 +59,10 @@ class DiffTrainer(Utils):
         self.report_img_idxs=settings['report_img_idx']
         self.report_img_per=settings['report_img_per']
 
-        self.div2k_train_lr_path=settings['div2k_train_lr_path']
-        self.div2k_train_hr_path=settings['div2k_train_hr_path']
-        self.flickr2k_train_lr_path=settings['flickr2k_train_lr_path']
-        self.flickr2k_train_hr_path=settings['flickr2k_train_hr_path']
-
-        self.div2k_test_lr_path=settings['div2k_test_lr_path']
-        self.div2k_test_hr_path=settings['div2k_test_hr_path']
+        self.train_he_path=settings['train_he_path']
+        self.train_ihc_path=settings['train_ihc_path']
+        self.val_he_path=settings['val_he_path']
+        self.val_ihc_path=settings['val_ihc_path']
 
         self.crop_size=settings['crop_size']
         
@@ -79,7 +76,7 @@ class DiffTrainer(Utils):
     # register objects needed to perform training
     def _setup_train_env(self):
         # define train dataloader
-        train_dataset = DF2KTrainDataset(self.div2k_train_lr_path, self.div2k_train_hr_path, self.flickr2k_train_lr_path, self.flickr2k_train_hr_path, self.crop_size)
+        train_dataset = TrainDataset(self.train_he_path, self.train_ihc_path, self.crop_size)
         self.train_sampler = DistributedSampler(train_dataset, shuffle=True, drop_last=True) if self.mgpu else None
         self.train_dataloader = DataLoader(train_dataset, batch_size=self.train_batch_size, num_workers=self.workers, sampler=self.train_sampler, pin_memory=True)
 
@@ -90,7 +87,7 @@ class DiffTrainer(Utils):
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=self.epochs*self.iter_per_epoch, eta_min=1e-7)
 
         # define valid dataloader
-        self.valid_dataset = DIV2KValDataset(self.div2k_test_lr_path, self.div2k_test_hr_path, self.crop_size)
+        self.valid_dataset = EvalDataset(self.val_he_path, self.val_ihc_path, self.crop_size)
         valid_sampler = DistributedSampler(self.valid_dataset, shuffle=False, drop_last=False) if self.mgpu else None
         self.valid_dataloader = DataLoader(self.valid_dataset, batch_size=self.eval_batch_size, num_workers=self.workers, sampler=valid_sampler, pin_memory=True)
 
@@ -165,7 +162,7 @@ class DiffTrainer(Utils):
                 self.writer.add_scalar('Train Loss', t_loss, epoch)
                 self.writer.add_scalar('Valid Loss', v_loss, epoch)
                 if sample != None:
-                    self.writer.add_images('Valid Images/A. Bicubic', img, epoch)
+                    self.writer.add_images('Valid Images/A. Condition', img, epoch)
                     self.writer.add_images('Valid Images/B. Sample', sample, epoch)
                     self.writer.add_images('Valid Images/C. GT', lbl, epoch)
             
@@ -248,8 +245,8 @@ class DiffTrainer(Utils):
         self.workers=settings['workers']
         self.report_img_idxs=settings['report_img_idx']
 
-        self.flickr2k_test_lr_path=settings['flickr2k_test_lr_path']
-        self.flickr2k_test_hr_path=settings['flickr2k_test_hr_path']
+        self.test_he_path=settings['test_he_path']
+        self.test_ihc_path=settings['test_ihc_path']
 
         self.crop_size=settings['crop_size']
         
@@ -264,7 +261,7 @@ class DiffTrainer(Utils):
     # register objects needed to perform tesing
     def _setup_test_env(self, virtual_device, ngpus_per_node):
         # define dataloader
-        self.test_dataset = Flickr2KTestDataset(self.flickr2k_test_lr_path, self.flickr2k_test_hr_path, self.crop_size)
+        self.test_dataset = EvalDataset(self.test_he_path, self.test_ihc_path, self.crop_size)
         test_sampler = DistributedSampler(self.test_dataset, shuffle=False, drop_last=False) if self.mgpu and self.is_divisible(self.test_dataset, ngpus_per_node) else None
         self.test_dataloader = DataLoader(self.test_dataset, batch_size=self.eval_batch_size, num_workers=self.workers, sampler=test_sampler, pin_memory=True)
         
@@ -313,7 +310,7 @@ class DiffTrainer(Utils):
             self.writer.add_scalar('Test FID', fid, 0)
             self.writer.add_scalar('Test PSNR', psnr, 0)
             self.writer.add_scalar('Test SSIM', ssim, 0)
-            self.writer.add_images('Test Images/A. Bicubic', img, 0)
+            self.writer.add_images('Test Images/A. Condition', img, 0)
             self.writer.add_images('Test Images/B. Sample', sample, 0)
             self.writer.add_images('Test Images/C. GT', lbl, 0)
             print(f'> [Stats.] | IS: ({is_mean:.3f}, {is_std:.3f}) | FID: {fid:.3f} | PSNR: {psnr:.3f} | SSIM: {ssim:.3f}')

@@ -15,12 +15,12 @@ class TrainDataset(Dataset):
         self.img_path = img_path
         self.lbl_path = lbl_path
         
-        self.scale_factor = 4
+        self.scale_factor = 1
         self.crop_size = crop_size
         self.tensor = transforms.ToTensor()
-    
+
     def __len__(self):
-        return len(self.img_names) 
+        return len(self.img_names)
 
     def __getitem__(self, idx):
         img = self.tensor(Image.open(join(self.img_path, self.img_names[idx])))
@@ -51,12 +51,12 @@ class EvalDataset(Dataset):
         self.img_path = img_path
         self.lbl_path = lbl_path
         
-        self.scale_factor = 4
+        self.scale_factor = 1
         self.crop_size = crop_size
         self.tensor = transforms.ToTensor()
-    
+
     def __len__(self):
-        return len(self.img_names) 
+        return len(self.img_names)
 
     def __getitem__(self, idx):
         img = self.tensor(Image.open(join(self.img_path, self.img_names[idx])))
