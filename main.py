@@ -88,20 +88,25 @@ if __name__ == '__main__':
     if '-d' in sys.argv:
         idx = sys.argv.index('-d')
         dataset = sys.argv[idx+1]
-        dataset_roots = {
-            'BCI':       'data/BCI',
-            'MIST_ER':   'data/MIST/ER',
-            'MIST_HER2': 'data/MIST/HER2',
-            'MIST_Ki67': 'data/MIST/Ki67',
-            'MIST_PR':   'data/MIST/PR',
-        }
-        root = dataset_roots[dataset]
-        settings['train_he_path']  = root + '/train/he'
-        settings['train_ihc_path'] = root + '/train/ihc'
-        settings['val_he_path']    = root + '/val/he'
-        settings['val_ihc_path']   = root + '/val/ihc'
-        settings['test_he_path']   = root + '/test/he'
-        settings['test_ihc_path']  = root + '/test/ihc'
+        
+        base = "/home/vs_user/Virtual Staining/Datasets"
+        if dataset == 'BCI':
+            settings['train_he_path']  = f'{base}/BCI/HE/train'
+            settings['train_ihc_path'] = f'{base}/BCI/IHC/train'
+            settings['val_he_path']    = f'{base}/BCI/HE/test'
+            settings['val_ihc_path']   = f'{base}/BCI/IHC/test'
+            settings['test_he_path']   = f'{base}/BCI/HE/test'
+            settings['test_ihc_path']  = f'{base}/BCI/IHC/test'
+        elif 'MIST' in dataset:
+            marker = dataset.split('_')[1]
+            root = f'{base}/MIST/{marker}/TrainValAB'
+            settings['train_he_path']  = f'{root}/trainA'
+            settings['train_ihc_path'] = f'{root}/trainB'
+            settings['val_he_path']    = f'{root}/valA'
+            settings['val_ihc_path']   = f'{root}/valB'
+            settings['test_he_path']   = f'{root}/valA'
+            settings['test_ihc_path']  = f'{root}/valB'
+            
         settings['point_path'] += '_' + dataset
         settings['log_path']   += '_' + dataset
         settings['states_path']+= '_' + dataset

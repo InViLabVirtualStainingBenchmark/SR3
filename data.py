@@ -1,4 +1,4 @@
-import random
+import random, os
 from PIL import Image
 from os import listdir
 from os.path import join
@@ -9,8 +9,9 @@ import torchvision.transforms as transforms
 
 class TrainDataset(Dataset):
     def __init__(self, img_path, lbl_path, crop_size):
-        self.img_names = sorted([name for name in listdir(img_path)])
-        self.lbl_names = sorted([name for name in listdir(lbl_path)])
+        exts = {'.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'}
+        self.img_names = sorted([name for name in listdir(img_path) if os.path.splitext(name)[1].lower() in exts])
+        self.lbl_names = sorted([name for name in listdir(lbl_path) if os.path.splitext(name)[1].lower() in exts])
         
         self.img_path = img_path
         self.lbl_path = lbl_path
@@ -45,8 +46,9 @@ class TrainDataset(Dataset):
     
 class EvalDataset(Dataset):
     def __init__(self, img_path, lbl_path, crop_size=None):
-        self.img_names = sorted([name for name in listdir(img_path)])
-        self.lbl_names = sorted([name for name in listdir(lbl_path)])
+        exts = {'.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'}
+        self.img_names = sorted([name for name in listdir(img_path) if os.path.splitext(name)[1].lower() in exts])
+        self.lbl_names = sorted([name for name in listdir(lbl_path) if os.path.splitext(name)[1].lower() in exts])
         
         self.img_path = img_path
         self.lbl_path = lbl_path
