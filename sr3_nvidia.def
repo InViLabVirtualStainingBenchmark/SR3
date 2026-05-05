@@ -1,0 +1,32 @@
+Bootstrap: docker
+# Matches RockyLinux and CUDA version on CalcUA/Ampere.
+# Using CUDA 12.1 in the container — torch 2.1.2 was built against cu121.
+From: nvidia/cuda:12.1.1-cudnn8-devel-rockylinux9
+
+%post
+    dnf -y update && \
+    dnf -y install \
+        python3-pip \
+        python3-devel \
+        git && \
+    dnf clean all
+
+    python3 -m pip install --no-cache-dir --upgrade pip
+
+    python3 -m pip install --no-cache-dir \
+        torch==2.1.2 torchvision==0.16.2 \
+        --index-url https://download.pytorch.org/whl/cu121
+
+    python3 -m pip install --no-cache-dir wheel
+
+    # SR3 dependencies.
+    python3 -m pip install --no-cache-dir \
+        numpy==1.26.4 \
+        scipy==1.13.1 \
+        scikit-image==0.24.0 \
+        Pillow==11.3.0 \
+        tqdm==4.67.3 \
+        tensorboard==2.14.0
+
+%environment
+    export PYTHONUNBUFFERED=1
