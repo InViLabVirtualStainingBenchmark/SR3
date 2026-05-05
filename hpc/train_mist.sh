@@ -4,12 +4,12 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=60G
-#SBATCH --time=20:00:00
+#SBATCH --time=00:30:00
 #SBATCH -A ap_invilab_td_thesis
 #SBATCH -p ampere_gpu
 #SBATCH --gres=gpu:1
-#SBATCH -o /data/antwerpen/<group>/<username>/projects/sr3/logs/%x.%j.out
-#SBATCH -e /data/antwerpen/<group>/<username>/projects/sr3/logs/%x.%j.err
+#SBATCH -o /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.out
+#SBATCH -e /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.err
 
 set -euo pipefail
 
@@ -22,7 +22,7 @@ export LOG_DIR="$VSC_DATA/projects/sr3/logs"
 
 # Total gradient steps.
 # At batch=4 and ~4153 train images (1038 steps/epoch): 500000 iters ≈ 482 epochs.
-export ITERS=500000
+export ITERS=4
 
 # Stain to train: ER | HER2 | Ki67 | PR
 # Override at submission with: sbatch --export=ALL,STAIN=HER2 train_mist.sh
