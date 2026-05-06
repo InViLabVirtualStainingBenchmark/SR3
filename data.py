@@ -8,10 +8,14 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
 class TrainDataset(Dataset):
-    def __init__(self, img_path, lbl_path, crop_size):
+    def __init__(self, img_path, lbl_path, crop_size, val_ratio=0.0):
         exts = {'.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'}
         self.img_names = sorted([name for name in listdir(img_path) if os.path.splitext(name)[1].lower() in exts])
         self.lbl_names = sorted([name for name in listdir(lbl_path) if os.path.splitext(name)[1].lower() in exts])
+        if val_ratio > 0.0:
+            n_val = max(1, int(len(self.img_names) * val_ratio))
+            self.img_names = self.img_names[:-n_val]
+            self.lbl_names = self.lbl_names[:-n_val]
         
         self.img_path = img_path
         self.lbl_path = lbl_path
@@ -45,10 +49,14 @@ class TrainDataset(Dataset):
         return img, lbl
     
 class EvalDataset(Dataset):
-    def __init__(self, img_path, lbl_path, crop_size=None):
+    def __init__(self, img_path, lbl_path, crop_size=None, val_ratio=0.0):
         exts = {'.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'}
         self.img_names = sorted([name for name in listdir(img_path) if os.path.splitext(name)[1].lower() in exts])
         self.lbl_names = sorted([name for name in listdir(lbl_path) if os.path.splitext(name)[1].lower() in exts])
+        if val_ratio > 0.0:
+            n_val = max(1, int(len(self.img_names) * val_ratio))
+            self.img_names = self.img_names[-n_val:]
+            self.lbl_names = self.lbl_names[-n_val:]
         
         self.img_path = img_path
         self.lbl_path = lbl_path

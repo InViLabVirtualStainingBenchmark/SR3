@@ -88,36 +88,38 @@ if __name__ == '__main__':
     if '-d' in sys.argv:
         idx = sys.argv.index('-d')
         dataset = sys.argv[idx+1]
-        
-        base = "/home/vs_user/Virtual Staining/Datasets"
+
+        base = os.path.join(os.environ.get('VSC_SCRATCH', ''), 'datasets')
         if dataset == 'BCI':
             settings['train_he_path']  = f'{base}/BCI/HE/train'
             settings['train_ihc_path'] = f'{base}/BCI/IHC/train'
-            settings['val_he_path']    = f'{base}/BCI/HE/test'
-            settings['val_ihc_path']   = f'{base}/BCI/IHC/test'
+            settings['val_he_path']    = f'{base}/BCI/HE/train'
+            settings['val_ihc_path']   = f'{base}/BCI/IHC/train'
             settings['test_he_path']   = f'{base}/BCI/HE/test'
             settings['test_ihc_path']  = f'{base}/BCI/IHC/test'
+            settings['val_ratio']      = 0.1
         elif 'MIST' in dataset:
             marker = dataset.split('_')[1]
             root = f'{base}/MIST/{marker}/TrainValAB'
             settings['train_he_path']  = f'{root}/trainA'
             settings['train_ihc_path'] = f'{root}/trainB'
-            settings['val_he_path']    = f'{root}/valA'
-            settings['val_ihc_path']   = f'{root}/valB'
+            settings['val_he_path']    = f'{root}/trainA'
+            settings['val_ihc_path']   = f'{root}/trainB'
             settings['test_he_path']   = f'{root}/valA'
             settings['test_ihc_path']  = f'{root}/valB'
-            
-        settings['point_path'] += '_' + dataset
-        settings['log_path']   += '_' + dataset
-        settings['states_path']+= '_' + dataset
+            settings['val_ratio']      = 0.1
+
+        settings['point_path']  += '_' + dataset
+        settings['log_path']    += '_' + dataset
+        settings['states_path'] += '_' + dataset
 
     if '-m' in sys.argv:
         idx = sys.argv.index('-m')
         model_name = sys.argv[idx + 1]
         settings['model'] = getattr(models[model_name], model_name)
         # update paths
-        settings['log_path'] = os.getcwd() + '/' + model_name + settings['log_path']
-        settings['point_path'] = os.getcwd() + '/' + model_name + settings['point_path']
+        settings['log_path']    = os.getcwd() + '/' + model_name + settings['log_path']
+        settings['point_path']  = os.getcwd() + '/' + model_name + settings['point_path']
         settings['states_path'] = os.getcwd() + '/' + model_name + settings['states_path']
 
     if '-a' in sys.argv:

@@ -37,5 +37,4 @@ kill $GPU_LOG_PID 2>/dev/null || true
 echo ""
 echo "BCI training and testing complete."
 echo "Checkpoints : $REPO_DIR/UNet/pnt_BCI/"
-echo "Predictions : $REPO_DIR/UNet/preds_BCI/"
 echo "GPU log     : $LOG_DIR/gpu_bci_${SLURM_JOB_ID}.csv"

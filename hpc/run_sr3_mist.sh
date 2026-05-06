@@ -38,5 +38,4 @@ kill $GPU_LOG_PID 2>/dev/null || true
 echo ""
 echo "MIST $STAIN training and testing complete."
 echo "Checkpoints : $REPO_DIR/UNet/pnt_${DATASET}/"
-echo "Predictions : $REPO_DIR/UNet/preds_${DATASET}/"
 echo "GPU log     : $LOG_DIR/gpu_mist_${STAIN}_${SLURM_JOB_ID}.csv"

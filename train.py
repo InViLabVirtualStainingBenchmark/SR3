@@ -65,7 +65,8 @@ class DiffTrainer(Utils):
         self.val_ihc_path=settings['val_ihc_path']
 
         self.crop_size=settings['crop_size']
-        
+        self.val_ratio=settings.get('val_ratio', 0.0)
+
         self._setup_exec_env(virtual_device, ngpus_per_node, settings)
         self._setup_train_env()
 
@@ -76,18 +77,18 @@ class DiffTrainer(Utils):
     # register objects needed to perform training
     def _setup_train_env(self):
         # define train dataloader
-        train_dataset = TrainDataset(self.train_he_path, self.train_ihc_path, self.crop_size)
+        train_dataset = TrainDataset(self.train_he_path, self.train_ihc_path, self.crop_size, val_ratio=self.val_ratio)
         self.train_sampler = DistributedSampler(train_dataset, shuffle=True, drop_last=True) if self.mgpu else None
         self.train_dataloader = DataLoader(train_dataset, batch_size=self.train_batch_size, num_workers=self.workers, sampler=self.train_sampler, pin_memory=True)
 
-        # register train variables 
+        # register train variables
         self.optimizer = optim.Adam(self.net.parameters(), lr=self.lr)
         self.iter_per_epoch = len(self.train_dataloader)
         self.epochs = (self.iters + self.iter_per_epoch - 1) // self.iter_per_epoch
         self.scheduler = CosineAnnealingLR(self.optimizer, T_max=self.epochs*self.iter_per_epoch, eta_min=1e-7)
 
         # define valid dataloader
-        self.valid_dataset = EvalDataset(self.val_he_path, self.val_ihc_path, self.crop_size)
+        self.valid_dataset = EvalDataset(self.val_he_path, self.val_ihc_path, self.crop_size, val_ratio=self.val_ratio)
         valid_sampler = DistributedSampler(self.valid_dataset, shuffle=False, drop_last=False) if self.mgpu else None
         self.valid_dataloader = DataLoader(self.valid_dataset, batch_size=self.eval_batch_size, num_workers=self.workers, sampler=valid_sampler, pin_memory=True)
 
@@ -102,7 +103,7 @@ class DiffTrainer(Utils):
         return
     
     # store current training state
-    def _store_train_env(self, epoch):
+    def _store_train_env(self, epoch, v_loss=None):
         last_path, old_path = self._gen_path(self.point_path)
         
         # extract last state
@@ -122,7 +123,12 @@ class DiffTrainer(Utils):
 
         # store last state
         torch.save(last_states, last_path)
-        
+
+        # store best state
+        if v_loss is not None and v_loss < self.best_v_loss:
+            self.best_v_loss = v_loss
+            torch.save(last_states, self.point_path + '/best.pt')
+
         return
 
     # load stored training state
@@ -143,6 +149,7 @@ class DiffTrainer(Utils):
     def _train_network(self, resume):
         # load train env
         epoch = self._load_train_env(resume)
+        self.best_v_loss = float('inf')
 
         # define process bar
         pbar = tqdm(total=self.epochs, desc=f'[Train]', smoothing=1.0)
@@ -158,7 +165,7 @@ class DiffTrainer(Utils):
             v_loss, img, lbl, sample = self._valid(epoch)
             # summary
             if self.master:
-                self._store_train_env(epoch)
+                self._store_train_env(epoch, v_loss)
                 self.writer.add_scalar('Train Loss', t_loss, epoch)
                 self.writer.add_scalar('Valid Loss', v_loss, epoch)
                 if sample != None:
@@ -291,7 +298,12 @@ class DiffTrainer(Utils):
 
     # load trained model and stored test state
     def _load_test_env(self, resume):
-        states = self.get_states(self.point_path, self.mgpu, self.user_set_devices)
+        best_path = self.point_path + '/best.pt'
+        if os.path.exists(best_path):
+            map_location = {'cuda:%d'%self.user_set_devices[0]: 'cuda:%d'%self.user_set_devices[dist.get_rank()]} if self.mgpu else None
+            states = torch.load(best_path, map_location=map_location)
+        else:
+            states = self.get_states(self.point_path, self.mgpu, self.user_set_devices)
         self.load_model(self.ema_net, states['ema_net'], self.mgpu)
         if resume:
             self.scores.load_states(self.states_path, self.virtual_device)
