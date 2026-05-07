@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=60G
-#SBATCH --time=00:30:00
+#SBATCH --time=24:00:00
 #SBATCH -A ap_invilab_td_thesis
 #SBATCH -p ampere_gpu
 #SBATCH --gres=gpu:1
@@ -20,9 +20,7 @@ set -euo pipefail
 export REPO_DIR="$VSC_DATA/projects/sr3/code/SR3"
 export LOG_DIR="$VSC_DATA/projects/sr3/logs"
 
-# Total gradient steps.
-# At batch=4 and ~4153 train images (1038 steps/epoch): 500000 iters ≈ 482 epochs.
-export ITERS=4
+export ITERS=500000
 
 # Stain to train: ER | HER2 | Ki67 | PR
 # Override at submission with: sbatch --export=ALL,STAIN=HER2 train_mist.sh
@@ -36,11 +34,6 @@ export RESUME="false"
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_nvidia.sif"
 RUN_SCRIPT="$REPO_DIR/hpc/run_sr3_mist.sh"
-
-# NOTE: Before submitting full training, update main.py:
-#   sample_steps: 10  →  100
-#   report_img_per: 1  →  10
-#   report_img_idx: [0,1,2,3]  →  [0,50,100,150]
 
 # =========================================================
 # ENVIRONMENT

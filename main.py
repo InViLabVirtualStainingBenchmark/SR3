@@ -29,15 +29,15 @@ if __name__ == '__main__':
     """
     ###########################################################################
     settings['steps'] = 2000  # diffusion training steps
-    settings['sample_steps'] = 10  # diffusion sample steps
-    settings['iters'] = 4  # training iterations
+    settings['sample_steps'] = 100  # diffusion sample steps
+    settings['iters'] = 500000  # training iterations
     settings['lr'] = 1e-5  # training learning rate
     settings['train_batch_size'] = 4  # training batch size
     settings['eval_batch_size'] = 4  # test batch size
     settings['workers'] = 4  # number of dataloader workers
-    settings['report_img_idx'] = [0, 1, 2, 3]  # validation image index
-    settings['report_img_per'] = 1  # validation image report period
-    settings['crop_size'] = 64
+    settings['report_img_idx'] = [0, 10, 20, 30]  # validation image index
+    settings['report_img_per'] = 10  # validation image report period
+    settings['crop_size'] = 256
     settings['train_he_path']  = 'data/BCI/train/he'
     settings['train_ihc_path'] = 'data/BCI/train/ihc'
     settings['val_he_path']    = 'data/BCI/val/he'
