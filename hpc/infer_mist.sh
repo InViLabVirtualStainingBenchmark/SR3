@@ -20,14 +20,14 @@ set -euo pipefail
 export REPO_DIR="$VSC_DATA/projects/sr3/code/SR3"
 export LOG_DIR="$VSC_DATA/projects/sr3/logs"
 
-GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
-stain_lower=$(echo "$STAIN" | tr '[:upper:]' '[:lower:]')
-export OUT_DIR="$GRP_SCRATCH/predictions/sr3/mist_${stain_lower}_test"
-
 # Stain to infer: ER | HER2 | Ki67 | PR
 : "${STAIN:=ER}"
 export STAIN
 export DATASET="MIST_${STAIN}"
+
+GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
+stain_lower=$(echo "$STAIN" | tr '[:upper:]' '[:lower:]')
+export OUT_DIR="$GRP_SCRATCH/predictions/sr3/mist_${stain_lower}_test"
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_nvidia.sif"
 RUN_SCRIPT="$REPO_DIR/hpc/run_infer_mist.sh"

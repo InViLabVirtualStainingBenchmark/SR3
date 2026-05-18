@@ -20,6 +20,8 @@ nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,memory.total \
 echo ""
 echo "=== Starting MIST-${STAIN} inference ==="
 echo "  dataset    : $DATASET"
+echo "  input      : $VSC_SCRATCH/datasets/MIST/$STAIN/TrainValAB/valA"
+echo "  output     : $OUT_DIR"
 echo "  checkpoint : $REPO_DIR/UNet/pnt_${DATASET}/best.pt"
 
 cd "$REPO_DIR"
@@ -29,4 +31,6 @@ python3 inference.py -m UNet -a 56 -d "$DATASET" -o "$OUT_DIR"
 kill $GPU_LOG_PID 2>/dev/null || true
 
 echo ""
+echo "=== Output image count ==="
+echo "  $STAIN : $(find "$OUT_DIR" -name "*.png" | wc -l) images written."
 echo "GPU log : $LOG_DIR/gpu_infer_mist_${STAIN}_${SLURM_JOB_ID}.csv"

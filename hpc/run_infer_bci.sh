@@ -19,6 +19,8 @@ nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,memory.total \
 
 echo ""
 echo "=== Starting BCI inference ==="
+echo "  input      : $VSC_SCRATCH/datasets/BCI/HE/test"
+echo "  output     : $OUT_DIR"
 echo "  checkpoint : $REPO_DIR/UNet/pnt_BCI/best.pt"
 
 cd "$REPO_DIR"
@@ -27,4 +29,6 @@ python3 inference.py -m UNet -a 56 -d BCI -o "$OUT_DIR"
 kill $GPU_LOG_PID 2>/dev/null || true
 
 echo ""
+echo "=== Output image count ==="
+echo "  BCI : $(find "$OUT_DIR" -name "*.png" | wc -l) images written."
 echo "GPU log : $LOG_DIR/gpu_infer_bci_${SLURM_JOB_ID}.csv"
