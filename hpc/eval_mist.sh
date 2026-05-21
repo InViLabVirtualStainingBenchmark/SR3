@@ -2,9 +2,9 @@
 #SBATCH --job-name=sr3_eval_mist
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
-#SBATCH --time=10:00:00
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=60G
+#SBATCH --time=24:00:00
 #SBATCH -A ap_invilab_td_thesis
 #SBATCH -p ampere_gpu
 #SBATCH --gres=gpu:1
@@ -83,15 +83,13 @@ for stain in ER HER2 Ki67 PR; do
         python "$EVAL_SCRIPT" \
             --pred         "$PRED_DIR" \
             --gt           "$GT_DIR" \
-            --model_name   SR3 \
+            --model_name   SR3_256 \
             --dataset_name "MIST_${stain}" \
             --split_name   test \
             --match_by     sort \
             --output       "$OUTPUT_CSV" \
             --device       cuda \
-            --cellpose \
-            --cellpose_n   10
-
+            --cellpose
     echo "  $stain done."
 
 done
