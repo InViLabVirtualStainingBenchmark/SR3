@@ -17,7 +17,7 @@
 set -euo pipefail
 
 GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
-OUT_BASE="$GRP_SCRATCH/predictions/sr3"
+OUT_BASE="$GRP_SCRATCH/diffusion-predictions/sr3"
 OUTPUT_CSV="$VSC_DATA/benchmark_results.csv"
 EVAL_SCRIPT="$VSC_DATA/evaluate/evaluate.py"
 CONTAINER="$VSC_SCRATCH/containers/evaluate_nvidia.sif"
