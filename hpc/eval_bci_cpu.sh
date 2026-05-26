@@ -6,7 +6,8 @@
 #SBATCH --mem=60G
 #SBATCH --time=24:00:00
 #SBATCH -A ap_invilab_td_thesis
-#SBATCH -p zen2
+#SBATCH -p arcturus_gpu
+#SBATCH --gres=gpu:1
 #SBATCH -o /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.out
 #SBATCH -e /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.err
 
