@@ -11,7 +11,7 @@
 #SBATCH -o /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.out
 #SBATCH -e /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.err
 
-# eval_mist_arcturus.sh — Evaluate SR3 predictions on all four MIST stains (CPU, arcturus_gpu).
+# eval_mist_arcturus.sh - Evaluate SR3 predictions on all four MIST stains (ROCm, arcturus_gpu).
 
 set -euo pipefail
 
@@ -19,7 +19,7 @@ GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
 OUT_BASE="$GRP_SCRATCH/diffusion-predictions/sr3"
 OUTPUT_CSV="$VSC_DATA/benchmark_results.csv"
 EVAL_SCRIPT="$VSC_DATA/evaluate/evaluate.py"
-CONTAINER="$VSC_SCRATCH/containers/evaluate_nvidia.sif"
+CONTAINER="$VSC_SCRATCH/containers/evaluate_rocm.sif"
 
 # =========================================================
 # ENVIRONMENT
@@ -74,7 +74,7 @@ for stain in ER HER2 Ki67 PR; do
     fi
     echo "  Predictions : $(find "$PRED_DIR" -maxdepth 1 -type f \( -name "*.png" -o -name "*.jpg" \) | wc -l) images"
 
-    srun apptainer exec \
+    srun apptainer exec --rocm \
         -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
         -B "$VSC_DATA:$VSC_DATA" \
         -B "$GRP_SCRATCH:$GRP_SCRATCH" \
@@ -87,7 +87,7 @@ for stain in ER HER2 Ki67 PR; do
             --split_name   test \
             --match_by     sort \
             --output       "$OUTPUT_CSV" \
-            --device       cpu \
+            --device       cuda \
             --cellpose
     echo "  $stain done."
 

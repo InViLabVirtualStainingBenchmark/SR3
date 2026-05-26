@@ -11,7 +11,7 @@
 #SBATCH -o /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.out
 #SBATCH -e /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.err
 
-# eval_bci_arcturus.sh — Evaluate SR3 predictions on BCI test set (CPU, arcturus_gpu).
+# eval_bci_arcturus.sh - Evaluate SR3 predictions on BCI test set (ROCm, arcturus_gpu).
 
 set -euo pipefail
 
@@ -20,7 +20,7 @@ PRED_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/bci_test"
 GT_DIR="$VSC_SCRATCH/datasets/BCI/IHC/test"
 OUTPUT_CSV="$VSC_DATA/benchmark_results.csv"
 EVAL_SCRIPT="$VSC_DATA/evaluate/evaluate.py"
-CONTAINER="$VSC_SCRATCH/containers/evaluate_nvidia.sif"
+CONTAINER="$VSC_SCRATCH/containers/evaluate_rocm.sif"
 
 # =========================================================
 # ENVIRONMENT
@@ -65,11 +65,11 @@ fi
 # =========================================================
 
 echo ""
-echo "=== Starting BCI evaluation (CPU) ==="
+echo "=== Starting BCI evaluation (ROCm) ==="
 
 mkdir -p "$VSC_SCRATCH/datasets/BCI"
 
-srun apptainer exec \
+srun apptainer exec --rocm \
     -B "$VSC_SCRATCH/datasets/BCI.sqsh:$VSC_SCRATCH/datasets/BCI:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     -B "$GRP_SCRATCH:$GRP_SCRATCH" \
@@ -82,7 +82,7 @@ srun apptainer exec \
         --split_name   test \
         --match_by     sort \
         --output       "$OUTPUT_CSV" \
-        --device       cpu \
+        --device       cuda \
         --cellpose
 echo ""
 echo "BCI evaluation complete. Results appended to: $OUTPUT_CSV"
