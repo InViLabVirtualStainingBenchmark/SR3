@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=sr3_eval_bci_cpu
+#SBATCH --job-name=sr3_eval_bci_arcturus
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
@@ -11,7 +11,7 @@
 #SBATCH -o /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.out
 #SBATCH -e /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.err
 
-# eval_bci_cpu.sh — Evaluate SR3 predictions on BCI test set (CPU, zen2).
+# eval_bci_arcturus.sh — Evaluate SR3 predictions on BCI test set (CPU, arcturus_gpu).
 
 set -euo pipefail
 
