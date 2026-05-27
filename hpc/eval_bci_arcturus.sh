@@ -69,6 +69,9 @@ echo "=== Starting BCI evaluation (ROCm) ==="
 
 mkdir -p "$VSC_SCRATCH/datasets/BCI"
 
+export MIOPEN_USER_DB_PATH=/tmp/miopen_${SLURM_JOB_ID}
+mkdir -p "$MIOPEN_USER_DB_PATH"
+
 srun apptainer exec --rocm \
     -B "$VSC_SCRATCH/datasets/BCI.sqsh:$VSC_SCRATCH/datasets/BCI:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \

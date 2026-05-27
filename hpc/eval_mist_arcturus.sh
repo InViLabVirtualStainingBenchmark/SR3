@@ -57,6 +57,9 @@ fi
 
 mkdir -p "$VSC_SCRATCH/datasets/MIST"
 
+export MIOPEN_USER_DB_PATH=/tmp/miopen_${SLURM_JOB_ID}
+mkdir -p "$MIOPEN_USER_DB_PATH"
+
 for stain in ER HER2 Ki67 PR; do
 
     stain_lower=$(echo "$stain" | tr '[:upper:]' '[:lower:]')
