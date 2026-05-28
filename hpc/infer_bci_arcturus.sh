@@ -69,6 +69,7 @@ export MIOPEN_USER_DB_PATH=/tmp/miopen_${SLURM_JOB_ID}
 mkdir -p "$MIOPEN_USER_DB_PATH"
 
 srun apptainer exec --rocm \
+    --env MIOPEN_USER_DB_PATH="$MIOPEN_USER_DB_PATH" \
     -B "$VSC_SCRATCH/datasets/BCI.sqsh:$VSC_SCRATCH/datasets/BCI:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     -B "$GRP_SCRATCH:$GRP_SCRATCH" \
