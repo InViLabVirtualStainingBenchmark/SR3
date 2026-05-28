@@ -1,0 +1,32 @@
+Bootstrap: docker
+# ROCm 5.6 is the last release with MI100 (gfx908) support.
+# Closest PyTorch version available for ROCm 5.6 is 2.1.2.
+From: rockylinux:9
+
+%post
+    dnf -y update && \
+    dnf -y install \
+        python3-pip \
+        python3-devel \
+        git && \
+    dnf clean all
+
+    python3 -m pip install --no-cache-dir --upgrade pip
+
+    python3 -m pip install --no-cache-dir \
+        torch==2.1.2 torchvision==0.16.2 \
+        --index-url https://download.pytorch.org/whl/rocm5.6
+
+    python3 -m pip install --no-cache-dir wheel
+
+    # SR3 dependencies.
+    python3 -m pip install --no-cache-dir \
+        numpy==1.26.4 \
+        scipy==1.13.1 \
+        scikit-image==0.24.0 \
+        Pillow==11.3.0 \
+        tqdm==4.67.3 \
+        tensorboard==2.14.0
+
+%environment
+    export PYTHONUNBUFFERED=1
