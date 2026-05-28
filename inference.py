@@ -34,10 +34,16 @@ def get_parser():
     return parser.parse_args()
 
 
+def _hann_window(size, device):
+    h = torch.hann_window(size, device=device)
+    return (h.unsqueeze(1) * h.unsqueeze(0)).unsqueeze(0).unsqueeze(0)  # 1x1xHxW
+
+
 def chop_inference(net, img, chop_size, chop_stride, device):
     """
     Sliding window inference on a single full-resolution image (1 x C x H x W).
-    Overlapping regions are averaged across patches to reduce boundary artifacts.
+    Overlapping regions are blended with a 2-D Hann window so patch boundaries
+    are invisible in the output.
     """
     _, c, h, w = img.shape
 
@@ -45,6 +51,7 @@ def chop_inference(net, img, chop_size, chop_stride, device):
         x_T = torch.randn_like(img)
         return torch.clip(net.sample(x_T, img), 0.0, 1.0)
 
+    window = _hann_window(chop_size, device)
     out    = torch.zeros(1, c, h, w, device=device)
     weight = torch.zeros(1, 1, h, w, device=device)
 
@@ -59,8 +66,8 @@ def chop_inference(net, img, chop_size, chop_stride, device):
             patch = img[:, :, y:y + chop_size, x:x + chop_size]
             x_T   = torch.randn_like(patch)
             pred  = torch.clip(net.sample(x_T, patch), 0.0, 1.0)
-            out   [:, :, y:y + chop_size, x:x + chop_size] += pred
-            weight[:, :, y:y + chop_size, x:x + chop_size] += 1.0
+            out   [:, :, y:y + chop_size, x:x + chop_size] += pred * window
+            weight[:, :, y:y + chop_size, x:x + chop_size] += window
 
     return out / weight
 
