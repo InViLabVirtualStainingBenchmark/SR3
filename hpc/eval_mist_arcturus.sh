@@ -63,7 +63,7 @@ mkdir -p "$MIOPEN_USER_DB_PATH"
 for stain in ER HER2 Ki67 PR; do
 
     stain_lower=$(echo "$stain" | tr '[:upper:]' '[:lower:]')
-    PRED_DIR="$OUT_BASE/mist_${stain_lower}_test"
+    PRED_DIR="$OUT_BASE/mist_${stain_lower}_test_1024"
     GT_DIR="$VSC_SCRATCH/datasets/MIST/$stain/TrainValAB/valB"
 
     echo ""
@@ -78,6 +78,7 @@ for stain in ER HER2 Ki67 PR; do
     echo "  Predictions : $(find "$PRED_DIR" -maxdepth 1 -type f \( -name "*.png" -o -name "*.jpg" \) | wc -l) images"
 
     srun apptainer exec --rocm \
+        --env MIOPEN_USER_DB_PATH="$MIOPEN_USER_DB_PATH" \
         -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
         -B "$VSC_DATA:$VSC_DATA" \
         -B "$GRP_SCRATCH:$GRP_SCRATCH" \

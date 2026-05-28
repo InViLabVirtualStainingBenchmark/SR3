@@ -27,7 +27,7 @@ export DATASET="MIST_${STAIN}"
 
 GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
 stain_lower=$(echo "$STAIN" | tr '[:upper:]' '[:lower:]')
-export OUT_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/mist_${stain_lower}_test"
+export OUT_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/mist_${stain_lower}_test_1024"
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_nvidia.sif"
 RUN_SCRIPT="$REPO_DIR/hpc/run_infer_mist.sh"
