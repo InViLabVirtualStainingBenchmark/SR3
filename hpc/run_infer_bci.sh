@@ -24,7 +24,7 @@ echo "  output     : $OUT_DIR"
 echo "  checkpoint : $REPO_DIR/UNet/pnt_BCI/best.pt"
 
 cd "$REPO_DIR"
-python3 inference.py -m UNet -a 56 -d BCI -o "$OUT_DIR" --chop_size 256 --chop_stride 128
+python3 inference.py -m UNet -a 56 -d BCI -o "$OUT_DIR" --chop_size 512
 
 kill $GPU_LOG_PID 2>/dev/null || true
 
