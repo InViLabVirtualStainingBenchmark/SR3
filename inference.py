@@ -135,6 +135,12 @@ def main():
 
     with torch.no_grad():
         for img, _ in tqdm(loader, desc='[Infer]'):
+            fnames = [dataset.img_names[sample_idx + b] for b in range(img.shape[0])]
+
+            if all(os.path.exists(os.path.join(out_dir, f)) for f in fnames):
+                sample_idx += img.shape[0]
+                continue
+
             img = torch.clip(img.to(device), 0.0, 1.0)
 
             t0 = time.perf_counter()
@@ -148,10 +154,9 @@ def main():
             total_time += time.perf_counter() - t0
 
             for b in range(x_0.shape[0]):
-                fname = dataset.img_names[sample_idx + b]
-                torchvision.utils.save_image(x_0[b], os.path.join(out_dir, fname))
+                torchvision.utils.save_image(x_0[b], os.path.join(out_dir, fnames[b]))
 
-            sample_idx += x_0.shape[0]
+            sample_idx += img.shape[0]
 
     runtime_ms_per_img = (total_time / len(dataset)) * 1000
     print(f'\n[Done] {len(dataset)} images saved to {out_dir}')
