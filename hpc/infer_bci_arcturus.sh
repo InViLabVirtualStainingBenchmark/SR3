@@ -20,7 +20,7 @@ export REPO_DIR="$VSC_DATA/projects/sr3/code/SR3"
 export LOG_DIR="$VSC_DATA/projects/sr3/logs"
 
 GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
-export OUT_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/bci_test_1024"
+export OUT_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/bci_test_fullimg"
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_rocm.sif"
 RUN_SCRIPT="$REPO_DIR/hpc/run_infer_bci.sh"
