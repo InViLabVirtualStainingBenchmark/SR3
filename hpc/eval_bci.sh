@@ -17,7 +17,8 @@
 set -euo pipefail
 
 GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
-PRED_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/bci_test"
+: "${RUN_SUFFIX:=fullimg}"
+: "${PRED_DIR:=$GRP_SCRATCH/diffusion-predictions/sr3/bci_${RUN_SUFFIX}}"
 GT_DIR="$VSC_SCRATCH/datasets/BCI/IHC/test"
 OUTPUT_CSV="$VSC_DATA/benchmark_results.csv"
 EVAL_SCRIPT="$VSC_DATA/evaluate/evaluate.py"
@@ -78,7 +79,7 @@ srun apptainer exec --nv \
     python "$EVAL_SCRIPT" \
         --pred         "$PRED_DIR" \
         --gt           "$GT_DIR" \
-        --model_name   SR3_256 \
+        --model_name   SR3 \
         --dataset_name BCI \
         --split_name   test \
         --match_by     sort \
