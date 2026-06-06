@@ -91,8 +91,7 @@ for stain in ER HER2 Ki67 PR; do
             --split_name   test \
             --match_by     sort \
             --output       "$OUTPUT_CSV" \
-            --device       cuda \
-            --cellpose
+            --device       cuda
     echo "  $stain done."
 
 done
