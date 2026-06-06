@@ -48,8 +48,8 @@ if [ ! -f "$EVAL_SCRIPT" ]; then
 fi
 
 echo "=== Dataset archive ==="
-if [ ! -f "$GRP_SCRATCH/datasets/MIST/MIST.sqsh" ]; then
-    echo "ERROR: MIST SquashFS archive not found: $GRP_SCRATCH/datasets/MIST/MIST.sqsh"
+if [ ! -f "$VSC_SCRATCH/datasets/MIST.sqsh" ]; then
+    echo "ERROR: MIST SquashFS archive not found: $VSC_SCRATCH/datasets/MIST.sqsh"
     exit 1
 fi
 
@@ -77,7 +77,7 @@ for stain in ER HER2 Ki67 PR; do
     echo "  Predictions : $(find "$PRED_DIR" -maxdepth 1 -type f \( -name "*.png" -o -name "*.jpg" \) | wc -l) images"
 
     srun apptainer exec --nv \
-        -B "$GRP_SCRATCH/datasets/MIST/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
+        -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
         -B "$VSC_DATA:$VSC_DATA" \
         -B "$GRP_SCRATCH:$GRP_SCRATCH" \
         "$CONTAINER" \
