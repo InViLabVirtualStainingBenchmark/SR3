@@ -57,8 +57,8 @@ fi
 echo "  $(find "$PRED_DIR" -maxdepth 1 -type f \( -name "*.png" -o -name "*.jpg" \) | wc -l) predicted images"
 
 echo "=== Dataset archive ==="
-if [ ! -f "$VSC_SCRATCH/datasets/BCI.sqsh" ]; then
-    echo "ERROR: BCI SquashFS archive not found: $VSC_SCRATCH/datasets/BCI.sqsh"
+if [ ! -f "$GRP_SCRATCH/datasets/BCI/BCI.sqsh" ]; then
+    echo "ERROR: BCI SquashFS archive not found: $GRP_SCRATCH/datasets/BCI/BCI.sqsh"
     exit 1
 fi
 
@@ -72,7 +72,7 @@ echo "=== Starting BCI evaluation ==="
 mkdir -p "$VSC_SCRATCH/datasets/BCI"
 
 srun apptainer exec --nv \
-    -B "$VSC_SCRATCH/datasets/BCI.sqsh:$VSC_SCRATCH/datasets/BCI:image-src=/" \
+    -B "$GRP_SCRATCH/datasets/BCI/BCI.sqsh:$VSC_SCRATCH/datasets/BCI:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     -B "$GRP_SCRATCH:$GRP_SCRATCH" \
     "$CONTAINER" \

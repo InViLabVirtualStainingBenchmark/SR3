@@ -53,11 +53,11 @@ fi
 echo "  $CONTAINER"
 
 echo "=== Checking dataset ==="
-if [ ! -f "$VSC_SCRATCH/datasets/MIST.sqsh" ]; then
-    echo "ERROR: MIST SquashFS archive not found: $VSC_SCRATCH/datasets/MIST.sqsh"
+if [ ! -f "$GRP_SCRATCH/datasets/MIST/MIST.sqsh" ]; then
+    echo "ERROR: MIST SquashFS archive not found: $GRP_SCRATCH/datasets/MIST/MIST.sqsh"
     exit 1
 fi
-echo "  MIST.sqsh : $(du -h "$VSC_SCRATCH/datasets/MIST.sqsh" | cut -f1)"
+echo "  MIST.sqsh : $(du -h "$GRP_SCRATCH/datasets/MIST/MIST.sqsh" | cut -f1)"
 
 echo "=== Stain: $STAIN ==="
 
@@ -77,7 +77,7 @@ mkdir -p "$VSC_SCRATCH/datasets/MIST"
 mkdir -p "$OUT_DIR"
 
 srun apptainer exec --nv \
-    -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
+    -B "$GRP_SCRATCH/datasets/MIST/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     -B "$GRP_SCRATCH:$GRP_SCRATCH" \
     "$CONTAINER" \
