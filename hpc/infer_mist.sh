@@ -27,9 +27,7 @@ export DATASET="MIST_${STAIN}"
 
 GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
 stain_lower=$(echo "$STAIN" | tr '[:upper:]' '[:lower:]')
-: "${RUN_SUFFIX:=chop512}"
-: "${OUT_DIR:=$GRP_SCRATCH/diffusion-predictions/sr3/mist_${stain_lower}_${RUN_SUFFIX}}"
-export OUT_DIR
+export OUT_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/mist_${stain_lower}_test_1024"
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_nvidia.sif"
 RUN_SCRIPT="$REPO_DIR/hpc/run_infer_mist.sh"
@@ -53,11 +51,11 @@ fi
 echo "  $CONTAINER"
 
 echo "=== Checking dataset ==="
-if [ ! -f "$GRP_SCRATCH/datasets/MIST/MIST.sqsh" ]; then
-    echo "ERROR: MIST SquashFS archive not found: $GRP_SCRATCH/datasets/MIST/MIST.sqsh"
+if [ ! -f "$VSC_SCRATCH/datasets/MIST.sqsh" ]; then
+    echo "ERROR: MIST SquashFS archive not found: $VSC_SCRATCH/datasets/MIST.sqsh"
     exit 1
 fi
-echo "  MIST.sqsh : $(du -h "$GRP_SCRATCH/datasets/MIST/MIST.sqsh" | cut -f1)"
+echo "  MIST.sqsh : $(du -h "$VSC_SCRATCH/datasets/MIST.sqsh" | cut -f1)"
 
 echo "=== Stain: $STAIN ==="
 
@@ -77,7 +75,7 @@ mkdir -p "$VSC_SCRATCH/datasets/MIST"
 mkdir -p "$OUT_DIR"
 
 srun apptainer exec --nv \
-    -B "$GRP_SCRATCH/datasets/MIST/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
+    -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     -B "$GRP_SCRATCH:$GRP_SCRATCH" \
     "$CONTAINER" \

@@ -16,8 +16,7 @@
 set -euo pipefail
 
 GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
-: "${OUT_BASE:=$GRP_SCRATCH/diffusion-predictions/sr3}"
-: "${RUN_SUFFIX:=chop512}"
+OUT_BASE="$GRP_SCRATCH/diffusion-predictions/sr3"
 OUTPUT_CSV="$VSC_DATA/benchmark_results.csv"
 EVAL_SCRIPT="$VSC_DATA/evaluate/evaluate.py"
 CONTAINER="$VSC_SCRATCH/containers/evaluate_rocm.sif"
@@ -64,7 +63,7 @@ mkdir -p "$MIOPEN_USER_DB_PATH"
 for stain in ER HER2 Ki67 PR; do
 
     stain_lower=$(echo "$stain" | tr '[:upper:]' '[:lower:]')
-    PRED_DIR="$OUT_BASE/mist_${stain_lower}_${RUN_SUFFIX}"
+    PRED_DIR="$OUT_BASE/mist_${stain_lower}_test_1024"
     GT_DIR="$VSC_SCRATCH/datasets/MIST/$stain/TrainValAB/valB"
 
     echo ""
@@ -87,12 +86,13 @@ for stain in ER HER2 Ki67 PR; do
         python "$EVAL_SCRIPT" \
             --pred         "$PRED_DIR" \
             --gt           "$GT_DIR" \
-            --model_name   SR3 \
+            --model_name   SR3_256 \
             --dataset_name "MIST_${stain}" \
             --split_name   test \
             --match_by     sort \
             --output       "$OUTPUT_CSV" \
-            --device       cuda
+            --device       cuda \
+            --cellpose
     echo "  $stain done."
 
 done
