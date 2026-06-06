@@ -87,7 +87,6 @@ srun apptainer exec --rocm \
         --split_name   test \
         --match_by     sort \
         --output       "$OUTPUT_CSV" \
-        --device       cuda \
-        --cellpose
+        --device       cuda
 echo ""
 echo "BCI evaluation complete. Results appended to: $OUTPUT_CSV"
