@@ -87,7 +87,7 @@ for stain in ER HER2 Ki67 PR; do
         python "$EVAL_SCRIPT" \
             --pred         "$PRED_DIR" \
             --gt           "$GT_DIR" \
-            --model_name   SR3_256 \
+            --model_name   SR3 \
             --dataset_name "MIST_${stain}" \
             --split_name   test \
             --match_by     sort \

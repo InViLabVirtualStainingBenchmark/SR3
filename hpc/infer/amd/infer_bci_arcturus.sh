@@ -25,7 +25,7 @@ GRP_SCRATCH="/scratch/antwerpen/grp/ap_invilab_td_thesis"
 export OUT_DIR
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_rocm.sif"
-RUN_SCRIPT="$REPO_DIR/hpc/run_infer_bci.sh"
+RUN_SCRIPT="$REPO_DIR/hpc/infer/run_infer_bci.sh"
 
 # =========================================================
 # ENVIRONMENT

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=sr3_bci
+#SBATCH --job-name=sr3_mist
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
@@ -22,12 +22,18 @@ export LOG_DIR="$VSC_DATA/projects/sr3/logs"
 
 export ITERS=500000
 
-# Set to "true" to resume from UNet/pnt_BCI/last.pt.
+# Stain to train: ER | HER2 | Ki67 | PR
+# Override at submission with: sbatch --export=ALL,STAIN=HER2 train_mist.sh
+: "${STAIN:=ER}"
+export STAIN
+export DATASET="MIST_${STAIN}"
+
+# Set to "true" to resume from UNet/pnt_MIST_{STAIN}/last.pt.
 # Leave as "false" for a fresh run.
 export RESUME="false"
 
 CONTAINER="$VSC_SCRATCH/containers/sr3_nvidia.sif"
-RUN_SCRIPT="$REPO_DIR/hpc/run_sr3_bci.sh"
+RUN_SCRIPT="$REPO_DIR/hpc/train/run_sr3_mist.sh"
 
 # =========================================================
 # ENVIRONMENT
@@ -48,20 +54,25 @@ fi
 echo "  $CONTAINER"
 
 echo "=== Checking dataset ==="
-if [ ! -f "$VSC_SCRATCH/datasets/BCI.sqsh" ]; then
-    echo "ERROR: BCI SquashFS archive not found: $VSC_SCRATCH/datasets/BCI.sqsh"
+if [ ! -f "$VSC_SCRATCH/datasets/MIST.sqsh" ]; then
+    echo "ERROR: MIST SquashFS archive not found: $VSC_SCRATCH/datasets/MIST.sqsh"
     exit 1
 fi
-echo "  BCI.sqsh : $(du -h "$VSC_SCRATCH/datasets/BCI.sqsh" | cut -f1)"
+echo "  MIST.sqsh : $(du -h "$VSC_SCRATCH/datasets/MIST.sqsh" | cut -f1)"
+
+echo "=== Stain: $STAIN ==="
 
 # =========================================================
 # RUN
 # =========================================================
 
-mkdir -p "$VSC_SCRATCH/datasets/BCI"
+mkdir -p "$VSC_SCRATCH/datasets/MIST"
 
 srun apptainer exec --nv \
-    -B "$VSC_SCRATCH/datasets/BCI.sqsh:$VSC_SCRATCH/datasets/BCI:image-src=/" \
+    -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     "$CONTAINER" \
     bash "$RUN_SCRIPT"
+
+echo ""
+echo "MIST $STAIN training complete."

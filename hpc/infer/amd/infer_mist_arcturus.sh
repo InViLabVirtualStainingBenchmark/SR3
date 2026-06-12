@@ -6,13 +6,13 @@
 #SBATCH --mem=60G
 #SBATCH --time=24:00:00
 #SBATCH -A ap_invilab_td_thesis
-#SBATCH -p ampere_gpu
+#SBATCH -p arcturus_gpu
 #SBATCH --gres=gpu:1
 #SBATCH -o /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.out
 #SBATCH -e /data/antwerpen/212/vsc21211/projects/sr3/logs/%x.%j.err
 
-# infer_mist.sh — MIST inference for SR3. Submit after train_mist.sh completes.
-# Override stain at submission: sbatch --export=ALL,STAIN=HER2 infer_mist.sh
+# infer_mist_arcturus.sh — MIST inference for SR3 on arcturus_gpu (AMD/ROCm).
+# Override stain at submission: sbatch --export=ALL,STAIN=HER2 infer_mist_arcturus.sh
 # Loads best.pt automatically from UNet/pnt_MIST_{STAIN}/.
 
 set -euo pipefail
@@ -30,8 +30,8 @@ stain_lower=$(echo "$STAIN" | tr '[:upper:]' '[:lower:]')
 : "${RUN_SUFFIX:=fullimg}"
 export OUT_DIR="$GRP_SCRATCH/diffusion-predictions/sr3/mist_${stain_lower}_${RUN_SUFFIX}"
 
-CONTAINER="$VSC_SCRATCH/containers/sr3_nvidia.sif"
-RUN_SCRIPT="$REPO_DIR/hpc/run_infer_mist.sh"
+CONTAINER="$VSC_SCRATCH/containers/sr3_rocm.sif"
+RUN_SCRIPT="$REPO_DIR/hpc/infer/run_infer_mist.sh"
 
 # =========================================================
 # ENVIRONMENT
@@ -75,7 +75,11 @@ echo "  best.pt : $(du -h "$BEST_PT" | cut -f1)"
 mkdir -p "$VSC_SCRATCH/datasets/MIST"
 mkdir -p "$OUT_DIR"
 
-srun apptainer exec --nv \
+export MIOPEN_USER_DB_PATH=/tmp/miopen_${SLURM_JOB_ID}
+mkdir -p "$MIOPEN_USER_DB_PATH"
+
+srun apptainer exec --rocm \
+    --env MIOPEN_USER_DB_PATH="$MIOPEN_USER_DB_PATH" \
     -B "$VSC_SCRATCH/datasets/MIST.sqsh:$VSC_SCRATCH/datasets/MIST:image-src=/" \
     -B "$VSC_DATA:$VSC_DATA" \
     -B "$GRP_SCRATCH:$GRP_SCRATCH" \

@@ -26,7 +26,7 @@ echo "  checkpoint : $REPO_DIR/UNet/pnt_${DATASET}/best.pt"
 
 cd "$REPO_DIR"
 
-python3 inference.py -m UNet -a 56 -d "$DATASET" -o "$OUT_DIR"
+python3 inference.py -m UNet -a 56 -d "$DATASET" -o "$OUT_DIR" --chop_size 512
 
 kill $GPU_LOG_PID 2>/dev/null || true
 
