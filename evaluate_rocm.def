@@ -1,0 +1,35 @@
+Bootstrap: docker
+From: rockylinux:9
+
+%post
+    # 1. Install Python 3.9 and core tools
+    dnf -y install \
+        python3.9 python3.9-devel python3-pip git \
+        libX11 libXext libXrender mesa-libGL glib2 && \
+    dnf clean all
+
+    # Set up Python 3.9
+    ln -sf /usr/bin/python3.9 /usr/bin/python
+    ln -sf /usr/bin/python3.9 /usr/local/bin/python
+
+    python3.9 -m ensurepip
+    python3.9 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+     # 2. Install PyTorch with ROCm 5.6 support (MI100 compatible)
+    python3.9 -m pip install --no-cache-dir \
+        torch==2.1.2 \
+        torchvision==0.16.2 \
+        --index-url https://download.pytorch.org/whl/rocm5.6
+
+    # 3. Install dependencies
+    # Pin numpy<2 because PyTorch 2.1.2 for ROCm 5.6 was compiled against NumPy 1.x
+    python3.9 -m pip install --no-cache-dir \
+        "numpy<2" \
+        torchmetrics \
+        lpips \
+        torch-fidelity \
+        cellpose \
+        matplotlib
+
+%environment
+    export PYTHONUNBUFFERED=1
